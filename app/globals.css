@@ -6,16 +6,55 @@
   --font-mono: var(--font-jetbrains-mono);
 }
 
+:root {
+  --bg-deep: #020408;
+  --bg-surface: #0d1117;
+  --accent-primary: #00f0ff;
+  --accent-secondary: #ff2a5f;
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 5px;
+  height: 5px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #05090f;
+  background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #1a2332;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #2a3342;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.glass-panel {
+  background: rgba(13, 17, 23, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cyber-border {
+  position: relative;
+}
+
+.cyber-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  background: linear-gradient(to bottom right, rgba(0, 240, 255, 0.2), transparent, rgba(255, 42, 95, 0.2)) border-box;
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  border-radius: inherit;
 }
