@@ -272,7 +272,19 @@ export default function NextGenEvasion() {
     'formant-phase': true,
     'saliency-starvation': false,
   });
+  const [isActivating, setIsActivating] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
+
+  const activateFullProtection = () => {
+    setIsActivating(true);
+    setLogs(prev => ["Initializing Global Evasion Protocol...", ...prev]);
+    
+    setTimeout(() => {
+      setActiveModules(modules.reduce((acc, m) => ({ ...acc, [m.id]: true }), {}));
+      setIsActivating(false);
+      setLogs(prev => ["FULL PROTECTION ACTIVE: 11/11 Modules Online", ...prev]);
+    }, 2000);
+  };
   const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
@@ -334,14 +346,24 @@ export default function NextGenEvasion() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-4">
-              <button 
-                onClick={() => setActiveModules(modules.reduce((acc, m) => ({ ...acc, [m.id]: true }), {}))}
-                className="px-8 py-4 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-black text-sm transition-all shadow-xl shadow-rose-500/20 active:scale-95 flex items-center gap-3"
-              >
-                <Shield className="w-5 h-5" />
-                ACTIVATE FULL PROTECTION
-              </button>
+              <div className="flex flex-wrap gap-4">
+                <button 
+                  onClick={activateFullProtection}
+                  disabled={isActivating}
+                  className={clsx(
+                    "px-8 py-4 rounded-2xl font-black text-sm transition-all shadow-xl active:scale-95 flex items-center gap-3",
+                    isActivating 
+                      ? "bg-rose-500/50 text-white/50 cursor-not-allowed" 
+                      : "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/20"
+                  )}
+                >
+                  {isActivating ? (
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Shield className="w-5 h-5" />
+                  )}
+                  {isActivating ? 'INITIALIZING...' : 'ACTIVATE FULL PROTECTION'}
+                </button>
               <button 
                 onClick={() => setShowTutorial(true)}
                 className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold text-sm transition-all border border-white/10 flex items-center gap-3"

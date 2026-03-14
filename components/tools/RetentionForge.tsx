@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flame, Layers, SplitSquareVertical, Mic2, Zap, Play, Settings2, ShieldAlert, Activity, Cpu, Sparkles, Wand2 } from 'lucide-react';
+import { Flame, Layers, SplitSquareVertical, Mic2, Zap, Play, Settings2, ShieldAlert, Activity, Cpu, Sparkles, Wand2, RefreshCw } from 'lucide-react';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -38,6 +38,25 @@ const viralFormats = [
 
 export default function RetentionForge() {
   const [activeFormat, setActiveFormat] = useState(viralFormats[0].id);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const startProcessing = () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setProgress(0);
+
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setIsProcessing(false), 1000);
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 100);
+  };
 
   return (
     <div className="max-w-6xl mx-auto pb-20">
@@ -261,10 +280,42 @@ export default function RetentionForge() {
                 </div>
               </div>
 
-              <button className="w-full py-5 bg-white text-black rounded-2xl font-black text-sm uppercase tracking-[0.2em] hover:bg-gray-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-                <Play className="w-4 h-4 fill-current" />
-                Initialize Viral Payload
-              </button>
+              <div className="space-y-4">
+                <button 
+                  onClick={startProcessing}
+                  disabled={isProcessing}
+                  className={clsx(
+                    "w-full py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-[0_0_40px_rgba(255,255,255,0.1)]",
+                    isProcessing 
+                      ? "bg-white/5 text-gray-500 cursor-not-allowed border border-white/10" 
+                      : "bg-white text-black hover:bg-gray-200"
+                  )}
+                >
+                  {isProcessing ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Play className="w-4 h-4 fill-current" />
+                  )}
+                  {isProcessing ? `FORGING PAYLOAD ${progress}%` : 'Initialize Viral Payload'}
+                </button>
+
+                {isProcessing && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center px-1">
+                      <span className="text-[9px] font-black text-[#ff4400] uppercase tracking-widest">Forging Algorithm</span>
+                      <span className="text-[9px] font-mono text-[#ff4400]">{progress}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                      <motion.div 
+                        className="h-full bg-gradient-to-r from-[#ff4400] to-[#ff2a5f]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 0.5 }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

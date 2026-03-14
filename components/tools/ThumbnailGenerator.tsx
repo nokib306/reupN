@@ -1,9 +1,29 @@
+import { useState } from 'react';
 import { DragDropZone } from '../DragDropZone';
-import { Clapperboard, Image as ImageIcon, Zap, Sparkles, Play, Settings, Activity, ChevronDown, Shield, Layers } from 'lucide-react';
+import { Clapperboard, Image as ImageIcon, Zap, Sparkles, Play, Settings, Activity, ChevronDown, Shield, Layers, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import { clsx } from 'clsx';
 
 export default function ThumbnailGenerator() {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const startProcessing = () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setProgress(0);
+
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setTimeout(() => setIsProcessing(false), 1000);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 150);
+  };
   return (
     <div className="max-w-6xl mx-auto pb-20">
       {/* Header Section */}
@@ -68,11 +88,41 @@ export default function ThumbnailGenerator() {
               </div>
             </div>
 
-            <div className="pt-4">
-              <button className="w-full py-6 rounded-2xl bg-[#ffb000]/10 border border-[#ffb000]/30 text-[#ffb000] font-black text-sm uppercase tracking-[0.3em] hover:bg-[#ffb000]/20 transition-all flex items-center justify-center gap-4 group shadow-[0_0_30px_rgba(255,176,0,0.1)]">
-                <ImageIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                Generate Viral Thumbnails
+            <div className="pt-4 space-y-4">
+              <button 
+                onClick={startProcessing}
+                disabled={isProcessing}
+                className={clsx(
+                  "w-full py-6 rounded-2xl border font-black text-sm uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 group shadow-[0_0_30px_rgba(255,176,0,0.1)]",
+                  isProcessing 
+                    ? "bg-white/5 border-white/10 text-gray-500 cursor-not-allowed" 
+                    : "bg-[#ffb000]/10 border-[#ffb000]/30 text-[#ffb000] hover:bg-[#ffb000]/20"
+                )}
+              >
+                {isProcessing ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ImageIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                )}
+                {isProcessing ? `GENERATING ${progress}%` : 'Generate Viral Thumbnails'}
               </button>
+
+              {isProcessing && (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[9px] font-black text-[#ffb000] uppercase tracking-widest">Extracting Frames</span>
+                    <span className="text-[9px] font-mono text-[#ffb000]">{progress}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <motion.div 
+                      className="h-full bg-[#ffb000]"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

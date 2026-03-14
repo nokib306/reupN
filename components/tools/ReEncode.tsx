@@ -1,12 +1,46 @@
 import { useState } from 'react';
 import { DragDropZone } from '../DragDropZone';
-import { Terminal, ChevronDown, ChevronUp, Zap, Settings2, Activity, Cpu, Shield, Play } from 'lucide-react';
+import { Terminal, ChevronDown, ChevronUp, Zap, Settings2, Activity, Cpu, Shield, Play, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx } from 'clsx';
 
 export default function ReEncode() {
   const [showLogs, setShowLogs] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState('READY');
+
+  const startProcessing = () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setShowLogs(true);
+    setProgress(0);
+    setStatus('INITIALIZING');
+
+    const steps = [
+      { p: 10, s: 'ANALYZING SOURCE' },
+      { p: 30, s: 'DECRYPTING METADATA' },
+      { p: 50, s: 'APPLYING NEURAL BYPASS' },
+      { p: 70, s: 'RE-ENCODING FRAMES' },
+      { p: 90, s: 'FINALIZING WRAPPER' },
+      { p: 100, s: 'COMPLETED' }
+    ];
+
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      if (currentStep < steps.length) {
+        setProgress(steps[currentStep].p);
+        setStatus(steps[currentStep].s);
+        currentStep++;
+      } else {
+        clearInterval(interval);
+        setTimeout(() => {
+          setIsProcessing(false);
+          setStatus('READY');
+        }, 2000);
+      }
+    }, 1500);
+  };
 
   // Mock FFmpeg logs for demonstration
   const mockLogs = `[ffmpeg] Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'input.mp4':
@@ -144,13 +178,42 @@ export default function ReEncode() {
                 </div>
               </div>
 
-              <button 
-                onClick={() => setIsProcessing(!isProcessing)}
-                className="w-full py-5 bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-              >
-                <Play className="w-4 h-4 fill-current" />
-                Initialize Hybrid Encoding
-              </button>
+              <div className="space-y-4">
+                <button 
+                  onClick={startProcessing}
+                  disabled={isProcessing}
+                  className={clsx(
+                    "w-full py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] transition-all active:scale-[0.98] flex items-center justify-center gap-3",
+                    isProcessing 
+                      ? "bg-white/5 border border-white/10 text-gray-500 cursor-not-allowed" 
+                      : "bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-white hover:shadow-[0_0_30px_rgba(0,240,255,0.3)]"
+                  )}
+                >
+                  {isProcessing ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Play className="w-4 h-4 fill-current" />
+                  )}
+                  {isProcessing ? `PROCESSING ${progress}%` : 'Initialize Hybrid Encoding'}
+                </button>
+
+                {isProcessing && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center px-1">
+                      <span className="text-[9px] font-black text-[#00f0ff] uppercase tracking-widest">{status}</span>
+                      <span className="text-[9px] font-mono text-[#00f0ff]">{progress}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                      <motion.div 
+                        className="h-full bg-gradient-to-r from-[#00f0ff] to-[#0066ff]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 0.5 }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
